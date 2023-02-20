@@ -1,0 +1,92 @@
+#split {
+  height: 100vh;
+  width: 100vw;
+  justify-content: center;
+  align-items: stretch;
+}
+#split .side-panel {
+  position: relative;
+  background: var(--background);
+  overflow: hidden;
+  width: 100%;
+}
+#split .side-panel .icons {
+  margin: auto;
+  color: #ffffff10;
+  position: absolute;
+  width: 720px;
+  height: 1024px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+#split .side-panel .icons .fa-gift {
+  min-height: 300px;
+  width: auto;
+  height: 55%;
+  bottom: 5%;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#split .side-panel .icons .fa-wand-magic-sparkles {
+  position: absolute;
+  left: 5%;
+  bottom: 60%;
+  min-width: 344px;
+  width: 52%;
+  height: auto;
+  transform: rotate(80deg);
+}
+#split .side-panel .title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 5rem;
+  font-weight: 600;
+  margin: 0;
+  color: #ffffff;
+  user-select: none;
+}
+#split .main-panel {
+  width: 100%;
+  position: relative;
+}
+#split .main-panel .back {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+}
+#split .main-panel .back .fa-chevron-left {
+  height: 2.5rem;
+  width: auto;
+  color: var(--button-green);
+  transition: ease 0.5s;
+}
+#split .main-panel .back .fa-chevron-left:hover {
+  color: var(--blue);
+}
+#split .main-panel .modal {
+  font-size: 1.2rem;
+  row-gap: 2rem;
+}
+#split .main-panel .modal .barrel {
+  width: 34rem;
+}
+#split .main-panel .modal input {
+  font-size: 1.2rem;
+}
+#split .main-panel .modal input[type=submit] {
+  color: white;
+}
+#split .main-panel .modal .title {
+  font-size: 2.1rem;
+}
+#split .main-panel .modal .inputs {
+  row-gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+#split .main-panel .modal .additional-options {
+  row-gap: 0.5rem;
+}
