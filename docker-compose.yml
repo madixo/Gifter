@@ -16,8 +16,11 @@ services:
         build:
             context: .
             dockerfile: docker/php/Dockerfile
+        expose:
+          - 9000
         volumes:
             - '.:/app/'
+            # - './docker/php/conf.d/:/usr/local/etc/php/conf.d/'
     db:
         image: postgres:15.1-alpine
         restart: always
@@ -28,8 +31,8 @@ services:
         ports:
             - '5432:5432'
         volumes:
-            - pgdata:/var/lib/postgresql/data
-            - ./docker/postgres/:/docker-entrypoint-initdb.d/
+            - 'pgdata:/var/lib/postgresql/data'
+            - './docker/postgres/:/docker-entrypoint-initdb.d/'
 volumes:
     pgdata:
         external: true

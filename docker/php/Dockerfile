@@ -19,18 +19,23 @@ ENV PHP_EXTENSIONS \
     zip \
     gd \
     bcmath \
+    pdo \
     pgsql \
     pdo_pgsql
 
-RUN apk add --no-cache --virtual .build-deps $BUILD_DEPS \
+RUN apk add --no-cache --update linux-headers \
+    && apk --no-cache --virtual .build-deps add pcre-dev ${PHPIZE_DEPS} \
+    && pecl install xdebug \
+    && apk add --no-cache --virtual .build-deps $BUILD_DEPS \
     && docker-php-ext-configure gd --with-jpeg \
-    && docker-php-ext-install -j "$(nproc)" $PHP_EXTENSIONS \
+    && docker-php-ext-install -j$(nproc) $PHP_EXTENSIONS \
+    && docker-php-ext-enable xdebug pdo_pgsql pgsql \
     && apk del .build-deps
 
 RUN apk add --no-cache --virtual .run-deps $RUN_DEPS
 
-COPY . /app/
+COPY ./docker/php/conf.d/ /usr/local/etc/php/conf.d/
 
-COPY ./docker/php/session_cookie.ini /etc/php/conf.d/session_cookie.ini
+COPY . /app/
 
 VOLUME ["/app"]
