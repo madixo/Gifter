@@ -1,5 +1,6 @@
 <? defined('GIFTER_APP') or die("Don't look, I'm shy! >.<") ?>
 
+[back href=register]
 <div id="terms-of-use" class="flex flex--column">
     <h1 class="title">Regulamin</h1>
     <ul>

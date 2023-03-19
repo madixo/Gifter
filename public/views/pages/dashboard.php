@@ -6,9 +6,7 @@
             <i class="fa fa-gift"></i>
             <h1 class="title">Gifter</h1>
         </div>
-        <div class="name">
-            <h1><?= $name ?></h1>
-        </div>
+        <h1 class="name"><?= $name ?></h1>
         <? if(!$user->isAnon()): ?>
         [profile user=$user]
         <? else: ?>
@@ -18,6 +16,7 @@
         <? endif; ?>
     </header>
     <main class="flex--column">
-        <? require "$panel.php"; ?>
+        <? /** @var string $panel */ require "panels/$panel.php"; ?>
     </main>
+    <div id="notifications"></div>
 </div>

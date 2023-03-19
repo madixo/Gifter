@@ -1,0 +1,162 @@
+header {
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+
+    .logo {
+        display: flex;
+        column-gap: 0.5rem;
+        align-items: center;
+        font-size: 3rem;
+        flex: 1;
+    }
+
+    .title {
+        font-size: 3rem;
+    }
+
+    .name {
+        flex: 5;
+        font-size: 3rem;
+    }
+
+    .register,
+    .profile {
+        flex: 1;
+    }
+
+    .register {
+        a {
+            color: white;
+            display: block;
+            background-color: var(--button-green);
+            width: fit-content;
+            height: fit-content;
+            &:hover {
+                background-color: var(--blue);
+            }
+        }
+        display: flex;
+        justify-content: end;
+    }
+}
+
+#dashboard {
+    background: var(--background);
+    height: 100vh;
+    width: 100%;
+    main {
+        background-color: white;
+        flex: 1;
+        padding: 1rem 0;
+        row-gap: 5rem;
+        .list {
+            row-gap: 1rem;
+            svg {
+                margin-right: 1rem;
+            }
+            &-delete {
+                background-color: var(--red);
+            }
+            &-controls-buttons {
+                column-gap: 0.5rem;
+                button,
+                input[type="submit"] {
+                    color: white;
+                }
+                form {
+                    column-gap: .5rem;
+                }
+            }
+            &-title {
+                font-size: 2rem;
+            }
+            &-header,
+            &-contents,
+            &-controls {
+                padding: 0 2rem;
+            }
+            &-controls {
+                justify-content: space-between;
+                align-items: center;
+            }
+            &-contents {
+                &:has(div) {
+                    border: 1px solid var(--grey);
+                    border-left: none;
+                    border-right: none;
+                }
+            }
+            &-item {
+                display: flex;
+                align-items: center;
+                padding: 1rem 0;
+                column-gap: 1rem;
+                padding-left: 1rem;
+                &:not(:last-child) {
+                    border-bottom: 1px solid var(--grey);
+                }
+                &-contents {
+                    flex: 1;
+                    font-size: 1.5rem;
+                    display: flex;
+                }
+                &-text {
+                    padding: 0 1rem;
+                    &:not(:last-child) {
+                        border-right: 1px solid var(--grey);
+                    }
+                }
+                &-controls {
+                    display: flex;
+                    height: 100%;
+                    a {
+                        color: black;
+                        display: flex;
+                        align-items: center;
+                    }
+                    a,
+                    button {
+                        padding: .5rem 1rem;
+                        height: 100%;
+                        &:not(:last-child) {
+                            border-right: 1px solid var(--grey);
+                        }
+                        &:hover {
+                            background-color: var(--grey);
+                        }
+                    }
+                    button {
+                        background-color: transparent;
+                    }
+                }
+            }
+        }
+        .input-group {
+
+            padding: 0 2rem;
+
+            &-header {
+                margin-bottom: 1rem;
+            }
+
+            input[type=button],
+            input[type=submit],
+            button {
+                color: white;
+            }
+
+        }
+    }
+}
+
+.barrel {
+    padding: 1rem 1.4rem;
+}
+
+.hidden {
+    display: none;
+}

@@ -1,135 +1,5 @@
 'use strict';
 
-const defaultHeaders = {
-    'Content-Type': 'application/json'
-};
-
-const defaultBody = {
-    csrfToken: csrfToken
-};
-
-/**
- *
- * @param {HTMLDivElement} list
- */
-const selectItem = list => {
-
-    const checkbox = list.querySelector('.list-select');
-    const deleteButton = list.querySelector('.list-delete');
-    const selectedItems = list.querySelectorAll('.list-item-select:checked');
-
-    if(selectedItems.length) {
-
-        deleteButton.disabled = false;
-
-        if(selectedItems.length === list.querySelectorAll('.list-item').length) {
-
-            checkbox.indeterminate = false;
-            checkbox.checked = true;
-
-        }else {
-
-            checkbox.indeterminate = true;
-            checkbox.checked = true;
-
-        }
-
-    }else {
-
-        deleteButton.disabled = true;
-        checkbox.indeterminate = false;
-        checkbox.checked = false;
-
-    }
-
-};
-
-/**
- *
- * @param {HTMLDivElement} list
- * @param {HTMLDivElement} item
- * @param {string} endpoint
- */
-const deleteList = (list, item, endpoint) => {
-
-    const id = item.dataset['id'];
-    const deleteButton = list.querySelector('.list-delete');
-    const checkbox = list.querySelector('.list-select');
-
-    fetch(endpoint, {
-
-        method: 'DELETE',
-        headers: defaultHeaders,
-        body: JSON.stringify({
-            ...defaultBody,
-            id: id
-        })
-
-    })
-        .then(response => response.json())
-        .then(data => {
-
-            if(data['status']) {
-
-                if(list.querySelectorAll('.list-item-select:checked').length) {
-
-                    checkbox.indeterminate = false;
-                    checkbox.checked = false;
-                    deleteButton.disabled = true;
-
-                }
-
-                item.remove();
-
-                if(!list.querySelectorAll('.list-item').length) checkbox.disabled = true;
-
-            }
-
-        });
-
-};
-
-const deleteLists = (list, endpoint) => {
-
-    const checkbox = list.querySelector('.list-select');
-    const deleteButton = list.querySelector('.list-delete');
-    const selectedItems = Array.from(list.querySelectorAll('.list-item')).filter(item => item.querySelector('.list-item-select:checked'));
-
-    if(!selectedItems.length) return;
-
-    fetch(endpoint, {
-
-        method: 'DELETE',
-        headers: defaultHeaders,
-        body: JSON.stringify({
-            ...defaultBody,
-            ids: selectedItems.map(item => item.dataset['id'])
-        })
-
-    })
-        .then(response => response.json())
-        .then(data => {
-
-            if(data['status']) {
-
-                if(list.querySelectorAll('.list-item-select:checked').length) {
-
-                    checkbox.indeterminate = false;
-                    checkbox.checked = false;
-                    deleteButton.disabled = true;
-
-                }
-
-                selectedItems.forEach(item => item.remove());
-
-                if(!list.querySelectorAll('.list-item').length) checkbox.disabled = true;
-
-            }
-
-        });
-
-};
-
 /**
  *
  * @param {HTMLDivElement} list
@@ -155,9 +25,24 @@ const appendNewItem = (list, props) => {
 
     }
 
+    const itemContentsDiv = document.createElement('div');
+    itemContentsDiv.classList.add('list-item-contents');
+
     const itemNameDiv = document.createElement('div');
-    itemNameDiv.classList.add('list-item-name');
-    itemNameDiv.textContent = `${props.name} ${props.access_code !== undefined ? `(${props.access_code})` : ''}`;
+    itemNameDiv.classList.add('list-item-text');
+    itemNameDiv.textContent = props.name;
+
+    itemContentsDiv.appendChild(itemNameDiv);
+
+    if(props.access_code) {
+
+        const itemCodeDiv = document.createElement('div');
+        itemCodeDiv.classList.add('list-item-text');
+        itemCodeDiv.textContent = props.access_code;
+
+        itemContentsDiv.appendChild(itemCodeDiv);
+
+    }
 
     const itemControlsDiv = document.createElement('div');
     itemControlsDiv.classList.add('list-item-controls');
@@ -180,7 +65,7 @@ const appendNewItem = (list, props) => {
     if(list.dataset['editable'] !== undefined) {
 
         const editItem = document.createElement('a');
-        editItem.href = `editList?id=${props.id}`;
+        editItem.href = `edit-list?id=${props.id}`;
         editItem.classList.add('list-item-edit')
 
         const editItemIcon = document.createElement('i');
@@ -208,102 +93,8 @@ const appendNewItem = (list, props) => {
 
     }
 
-    listItemDiv.append(itemNameDiv, itemControlsDiv);
+    listItemDiv.append(itemContentsDiv, itemControlsDiv);
 
-    list.querySelector('.list-content').appendChild(listItemDiv);
+    list.querySelector('.list-contents').appendChild(listItemDiv);
 
 };
-
-document.querySelectorAll('.list').forEach(list => {
-
-    const checkbox = list.querySelector('.list-select');
-    const deleteButton = list.querySelector('.list-delete');
-    const addButton = list.querySelector('.list-add');
-    const form = list.querySelector('form');
-    const formInput = list.querySelector('input[type=text]');
-    const endpoint = list.dataset['endpoint'];
-    const controls = list.querySelector('.list-controls-buttons')
-
-    checkbox.addEventListener('change', e => {
-
-        const listItemsCheckboxes = list.querySelectorAll('.list-item input[type=checkbox]');
-
-        e.target.indeterminate = false;
-
-        if(e.target.checked) {
-
-            listItemsCheckboxes.forEach(checkbox => checkbox.checked = true);
-            deleteButton.disabled = false;
-
-        }else {
-
-            listItemsCheckboxes.forEach(checkbox => checkbox.checked = false);
-            deleteButton.disabled = true;
-
-        }
-
-    });
-
-    list.querySelectorAll('.list-item').forEach(item => {
-
-        item.querySelector('.list-item-select').addEventListener('change', () => selectItem(list, item));
-
-        item.querySelector('.list-item-delete').addEventListener('click', () => deleteList(list, item, endpoint));
-
-    });
-
-    deleteButton.addEventListener('click', () => deleteLists(list, endpoint))
-
-    addButton.addEventListener('click', () => {
-
-        addButton.classList.add('hidden');
-        form.classList.remove('hidden');
-        formInput.focus();
-
-    });
-
-    const hideform = () => {
-
-        addButton.classList.remove('hidden');
-        form.classList.add('hidden');
-
-    };
-
-    form.addEventListener('submit', e => {
-
-        e.preventDefault();
-
-        fetch(endpoint, {
-
-            method: 'PUT',
-            headers: defaultHeaders,
-            body: JSON.stringify({
-                ...defaultBody,
-                data: formInput.value
-            })
-
-        })
-            .then(response => response.json())
-            .then(data => {
-
-                if(data['status']) {
-
-                    appendNewItem(list, data['list_info']);
-
-                    form.classList.add('hidden');
-                    addButton.classList.remove('hidden');
-                    if(checkbox.disabled) checkbox.disabled = false;
-
-                }
-
-                form.reset();
-
-            });
-
-    });
-
-    form.addEventListener('keydown', e => e.key === "Escape" ? hideform() : undefined);
-
-    document.addEventListener('click', e => ![...Array.from(form.children), addButton].includes(e.target) && !form.classList.contains('hidden') ? hideform() : undefined);
-
-});

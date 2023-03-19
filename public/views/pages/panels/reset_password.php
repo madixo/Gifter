@@ -7,7 +7,7 @@
     [messages message=$message error=$error]
     <form class="modal-form flex flex--column" action="reset-password" method="POST">
         <div class="inputs flex flex--column">
-            [password name=password placeholder=Hasło]
+            [password name=password placeholder='Hasło']
             [password placeholder='Powtórz hasło']
             <input type="hidden" name="uuid" value="<?= $uuid ?>" required>
         </div>

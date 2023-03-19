@@ -10,25 +10,25 @@
     <link rel="stylesheet" href="public/css/style.css?v=<?= time() ?>">
 
     <? if(isset($appendStyles)) foreach($appendStyles as $style): ?>
-    <link rel="stylesheet" href="<?= $style ?>.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="public/css/<?= $style ?>.css?v=<?= time() ?>">
     <? endforeach; ?>
 
     <script src="https://kit.fontawesome.com/3d2537f2b4.js" crossorigin="anonymous"></script>
     <script src="public/scripts/script.js?v=<?= time() ?>" defer></script>
 
     <? if(isset($passDataToFront)): ?>
-    <script type="text/javascript"><? foreach($passDataToFront as $key => $value) { echo "const $key = $value;"; } ?></script>
+    <script type="text/javascript"><? foreach($passDataToFront as $key => $value) { echo "const $key = $value;\n"; } ?></script>
     <? endif; ?>
 
     <? if(isset($appendScripts)) foreach($appendScripts as $script): ?>
-    <script src="<?= $script["src"] ?>.js?v=<?= time() ?>" <?= $script["defer"] ?? false ? "defer" : "" ?>></script>
+    <script src="public/scripts/<?= $script["src"] ?>.js?v=<?= time() ?>" <?= $script["defer"] ?? false ? "defer" : "" ?>></script>
     <? endforeach; ?>
 
     <title>Gifter</title>
 </head>
 
 <body>
-    <? include "$page.php"; ?>
+    <? include "pages/$page.php"; ?>
 </body>
 
 </html>

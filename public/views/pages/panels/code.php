@@ -1,10 +1,6 @@
 <? defined('GIFTER_APP') or die("Don't look, I'm shy! >.<") ?>
 
-<div class="back">
-    <a href="login">
-        <i class="fa-solid fa-chevron-left"></i>
-    </a>
-</div>
+[back href=login]
 <div class="modal flex flex--column flex--center">
     <div class="title">
         <span>Wprowadź kod</span>

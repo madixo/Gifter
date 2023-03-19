@@ -11,7 +11,7 @@ abstract class AppController {
     private string $method;
     protected array $query = [];
     protected array $args;
-    protected ?array $json;
+    protected array $json;
     protected Database $database;
     protected UserManager $userManager;
     protected GiftManager $giftManager;
@@ -26,7 +26,7 @@ abstract class AppController {
         parse_str($_SERVER["QUERY_STRING"], $this->query);
         $this->args = $_POST;
         if($_SERVER['HTTP_CONTENT_TYPE'] ?? "" === "application/json")
-            $this->json = json_decode(file_get_contents('php://input'), null, 512, JSON_OBJECT_AS_ARRAY);
+            $this->json = json_decode(file_get_contents('php://input'), true) ?? [];
         $this->database = new Database(DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME);
         $this->userManager = new UserManager($this->database);
         $this->giftManager = new GiftManager($this->database);
@@ -37,10 +37,34 @@ abstract class AppController {
 
     }
 
+    private function parseArgs(string $args, array $variables, string $charset = "") {
+ //       print_r("current shortcode:\n");
+  //      print_r("\n-------------\ncurrent vars:\n");
+   //     print_r("-------------------\n\$variables");
+
+     //   print_r("-----------------\n");
+        preg_match_all('/' . $charset . '(?<=[ \[,])(?:(?<key>(?&all)+)(?: *= *(?:(?|(?<value>(?&all)+)|\'(?<value>.*?)(?<!\\\\)\'|"(?<value>.*?)(?<!\\\\)")|\$(?<variable>(?&var)(?&all)*)|(?<array>\[.*?\])))?)(?=[ \],])/', $args, $matches, PREG_SET_ORDER | PREG_UNMATCHED_AS_NULL);
+
+        $out = [];
+
+        array_walk($matches,
+            function($value) use ($variables, $charset, &$out) {
+                $out[$value['key']] = isset($value['value']) ?
+                    $value['value'] : (isset($value['variable']) ?
+                    $variables[$value['variable']] ?? null : (isset($value['array']) ?
+                    $this->parseArgs($value['array'], $variables, $charset) : true));
+            }
+        );
+
+        return $out;
+
+    }
+
     protected function templateToString(string $template, array $variables = []): string {
 
         $templatePath = "public/views/" . $template . ".php";
         $output = "File not found " . $templatePath;
+        $charset = '(?(DEFINE)(?<var>[a-zA-Z_])(?<all>[\d\-]|(?&var)))';
 
         if(file_exists($templatePath)) {
 
@@ -51,31 +75,35 @@ abstract class AppController {
             require $templatePath;
             $output = ob_get_clean();
 
-            // FIXME: infinite recursion
             foreach($this->shortcodes as $shortcode => $function) {
 
-                preg_match_all("/\[$shortcode( (([a-zA-Z0-9_\-ąęćńśźóżł]+)(\=(?|[$]?(?3)|('[a-zA-Z0-9_\-ąęćńśźóżł ]+')))*)+)*\]/i", $output, $matches);
+                preg_match_all('/' . $charset . '\[ *' . $shortcode . '(?: +(?<pattern>(?&all)+(?: *= *(?:(?&all)+|\'(?:[^\']|(?<=\\\\)\')*\'|"(?:[^"]|(?<=\\\\)")*"|\$(?&var)(?&all)*|\[(?:(?(?<=\[)| *,) *(?&pattern))* *\]))?))* *\]/', $output, $matches);
 
                 foreach($matches[0] as $match) {
 
-                    preg_match_all("/(?<matches>(?<= )(?<keys>[a-zA-Z0-9_\-ąęćńśźóżł]+)(?:\=(?<values>(?|[$]?(?2)|(?:'[a-zA-Z0-9_\-ąęćńśźóżł ]+'))))*)+/i", $match, $args, PREG_UNMATCHED_AS_NULL);
+                //   $output = str_replace(
+                //       $match,
+                //       $function(
+                //           isset($args["matches"]) ?
+                //               array_combine(
+                //                   $args["keys"],
+                //                   array_map(function($value) use($variables) {
+                //                       $value = $value ? $value = trim($value, "'") : true;
+                //                       if(str_starts_with($value, '$'))
+                //                           return $variables[substr($value, 1)] ?? null;
+                //                       return $value;
+                //                   }, $args["values"])
+                //               ) : []
+                //       ),
+                //       $output
+                //   );
 
-                    $output = str_replace(
-                        $match,
-                        $function(
-                            isset($args["matches"]) ?
-                                array_combine(
-                                    $args["keys"],
-                                    array_map(function($value) use($variables) {
-                                        $value = $value ? $value = trim($value, "'") : true;
-                                        if(str_starts_with($value, '$'))
-                                            return $variables[substr($value, 1)] ?? null;
-                                        return $value;
-                                    }, $args["values"])
-                                ) : []
-                        ),
-                        $output
-                    );
+                    $output = str_replace($match, $function(
+                        $this->parseArgs(
+                            preg_replace('/(?<=\[) *| *(?=\])/', '', preg_replace("/ *$shortcode */", '', $match, 1)),
+                            $variables, $charset
+                        )
+                    ), $output);
 
                 }
 

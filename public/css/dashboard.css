@@ -18,8 +18,6 @@ header .title {
 }
 header .name {
   flex: 5;
-}
-header .name h1 {
   font-size: 3rem;
 }
 header .register,
@@ -74,14 +72,14 @@ header .register a:hover {
 #dashboard main .list-title {
   font-size: 2rem;
 }
-#dashboard main .list-header, #dashboard main .list-content, #dashboard main .list-controls {
+#dashboard main .list-header, #dashboard main .list-contents, #dashboard main .list-controls {
   padding: 0 2rem;
 }
 #dashboard main .list-controls {
   justify-content: space-between;
   align-items: center;
 }
-#dashboard main .list-content:has(div) {
+#dashboard main .list-contents:has(div) {
   border: 1px solid var(--grey);
   border-left: none;
   border-right: none;
@@ -96,9 +94,16 @@ header .register a:hover {
 #dashboard main .list-item:not(:last-child) {
   border-bottom: 1px solid var(--grey);
 }
-#dashboard main .list-item-name {
+#dashboard main .list-item-contents {
   flex: 1;
   font-size: 1.5rem;
+  display: flex;
+}
+#dashboard main .list-item-text {
+  padding: 0 1rem;
+}
+#dashboard main .list-item-text:not(:last-child) {
+  border-right: 1px solid var(--grey);
 }
 #dashboard main .list-item-controls {
   display: flex;
@@ -124,6 +129,17 @@ header .register a:hover {
 }
 #dashboard main .list-item-controls button {
   background-color: transparent;
+}
+#dashboard main .input-group {
+  padding: 0 2rem;
+}
+#dashboard main .input-group-header {
+  margin-bottom: 1rem;
+}
+#dashboard main .input-group input[type=button],
+#dashboard main .input-group input[type=submit],
+#dashboard main .input-group button {
+  color: white;
 }
 
 .barrel {

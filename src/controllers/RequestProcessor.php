@@ -19,7 +19,7 @@ class RequestProcessor extends DashboardViewController {
 
         $this->assertOrDie(isset($this->json) || isset($this->json['csrfToken']), 400);
 
-        $this->assertOrDie(Utils::validateCSRFToken($this->sessionManager->getSessionUUID(), $this->json["csrfToken"]), 403);
+        $this->assertOrDie(Utils::validateCSRFToken($this->sessionManager->getSessionID(), $this->json["csrfToken"]), 403);
 
     }
 

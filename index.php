@@ -30,10 +30,10 @@ Router::get('/dashboard', 'DashboardController');
 
 Router::get('/list', 'ListController');
 Router::put('/list', 'ListController');
-Router::update('/list', 'ListController');
 Router::delete('/list', 'ListController');
 
-Router::get('/editList', 'EditListController');
+Router::get('/edit-list', 'EditListController');
+Router::update('/list', 'EditListController');
 
 Router::put('/contribution', 'ContributionController');
 Router::delete('/contribution', 'ContributionController');

@@ -1,6 +1,6 @@
 <?
 
-require_once "AppController.php";
+require_once 'AppController.php';
 
 class DashboardViewController extends AppController {
 
@@ -8,13 +8,13 @@ class DashboardViewController extends AppController {
 
         parent::__construct();
 
-        $this->addShortcode("profile", function($args) {
+        $this->addShortcode('profile', function($args) {
 
-            return $this->templateToString("components/profile", $args);
+            return $this->templateToString('components/profile', $args);
 
         });
 
-        $this->addViewFromTemplate("page", "page", ["page" => "pages/dashboard", "appendStyles" => ["public/css/dashboard"], "user" => $this->sessionManager->getCurrentUser()]);
+        $this->addViewFromTemplate('page', 'page', ['page' => 'dashboard', 'appendStyles' => ['dashboard'], 'appendScripts' => [['src' => 'dashboard_view', 'defer' => true]], 'user' => $this->sessionManager->getCurrentUser()]);
 
     }
 

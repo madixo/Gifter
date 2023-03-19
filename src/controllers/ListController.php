@@ -10,7 +10,7 @@ class ListController extends RequestProcessor {
         !$list = $this->contributionManager->getContribution(new Contribution($this->sessionManager->getCurrentUser(), new GiftList($this->query["id"], null, null, null))))
             Router::route("/dashboard");
 
-        $this->renderView("page", ["panel" => "panels/list_panel", "name" => $list->getName()]);
+        $this->renderView("page", ["panel" => "list", "name" => $list->getName()]);
 
     }
 
@@ -38,19 +38,23 @@ class ListController extends RequestProcessor {
 
         if(isset($this->json["id"])) {
 
-            die(json_encode(
-                $this->giftListManager->deleteList(new GiftList($this->json["id"], $this->sessionManager->getCurrentUser(), null, null)) ?
-                    ["status" => true] :
-                    ["status" => false, "message" => "jd"]
-            ));
+            die(
+                json_encode(
+                    $this->giftListManager->deleteList(new GiftList($this->json["id"], $this->sessionManager->getCurrentUser(), null, null)) ?
+                        ["status" => true] :
+                        ["status" => false, "message" => "Wystąpił błąd podczas usuwania listy!"]
+                )
+            );
 
         }else if(isset($this->json["ids"])) {
 
-            die(json_encode(
-                $this->giftListManager->deleteLists(array_map(fn($id) => new GiftList($id, $this->sessionManager->getCurrentUser(), null, null), $this->json["ids"])) ?
-                    ["status" => true] :
-                    ["status" => false, "message" => "jd"]
-            ));
+            die(
+                json_encode(
+                    $this->giftListManager->deleteLists(array_map(fn($id) => new GiftList($id, $this->sessionManager->getCurrentUser(), null, null), $this->json["ids"])) ?
+                        ["status" => true] :
+                        ["status" => false, "message" => "Wystąpił błąd podczas usuwania list!"]
+                )
+            );
 
         }
 

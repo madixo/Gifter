@@ -8,7 +8,7 @@
     <form class="modal-form flex flex--column" action="register" method="POST">
         <div class="inputs flex flex--column">
             <input class="barrel" type="email" name="email" placeholder="Email" maxlength="255" <?= isset($email) ? "value=\"$email\"" : ""; ?> required>
-            [password name=password placeholder=Hasło]
+            [password name=password placeholder='Hasło']
             [password placeholder='Powtórz hasło']
             <label class="checkbox flex" for="tou">
                 <input type="checkbox" name="tou" required>

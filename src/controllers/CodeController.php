@@ -10,7 +10,7 @@ class CodeController extends SplitViewController {
 
         $this->addShortcode("email", function($args) {
 
-            return $this->templateToString("components/inputs/email", $args);
+            return $this->templateToString("components/input/email", $args);
 
         });
 
@@ -18,7 +18,7 @@ class CodeController extends SplitViewController {
 
     public function get(): void {
 
-        $this->renderView("split", ["panel" => "panels/code_panel"]);
+        $this->renderView("split", ["panel" => "code"]);
 
     }
 

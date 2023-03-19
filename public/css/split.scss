@@ -1,0 +1,111 @@
+#split {
+    height: 100vh;
+    width: 100vw;
+    justify-content: center;
+    align-items: stretch;
+
+    .side-panel {
+        position: relative;
+        background: var(--background);
+        // display: flex;
+        overflow: hidden;
+        width: 100%;
+
+        .icons {
+            margin: auto;
+            color: #ffffff10;
+            // aspect-ratio: 720 / 1024;
+            position: absolute;
+            width: 720px;
+            height: 1024px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+            .fa-gift {
+                min-height: 300px;
+                width: auto;
+                height: 55%;
+                bottom: 5%;
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .fa-wand-magic-sparkles {
+                position: absolute;
+                left: 5%;
+                bottom: 60%;
+                min-width: 344px;
+                width: 52%;
+                height: auto;
+                transform: rotate(80deg);
+            }
+        }
+
+        .title {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5rem;
+            font-weight: 600;
+            margin: 0;
+            color: #ffffff;
+            user-select: none;
+        }
+    }
+
+    .main-panel {
+        width: 100%;
+        position: relative;
+        padding: 2rem;
+
+        .back {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+
+            .fa-chevron-left {
+                height: 2.5rem;
+                width: auto;
+                color: var(--button-green);
+                transition: ease 0.5s;
+
+                &:hover {
+                    color: var(--blue);
+                }
+            }
+        }
+
+        .modal {
+            font-size: 1.2rem;
+
+            .barrel {
+                width: 34rem;
+            }
+
+            input {
+                font-size: 1.2rem;
+
+                &[type="submit"] {
+                    color: white;
+                }
+            }
+
+            row-gap: 2rem;
+
+            .title {
+                font-size: 2.1rem;
+            }
+
+            .inputs {
+                row-gap: 0.5rem;
+                margin-bottom: 2rem;
+            }
+            .additional-options {
+                row-gap: 0.5rem;
+            }
+        }
+    }
+}

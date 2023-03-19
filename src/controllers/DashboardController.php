@@ -1,5 +1,7 @@
 <?
 
+require_once __DIR__ . "/../config.php";
+
 require_once "DashboardViewController.php";
 
 class DashboardController extends DashboardViewController {
@@ -8,11 +10,15 @@ class DashboardController extends DashboardViewController {
 
         parent::__construct();
 
-        $this->addShortcode("dashboard_list", function($args) {
-
-            return $this->templateToString("components/dashboard_list", $args);
-
-        });
+        $this->addShortcode("list", fn(array $args) =>
+            $this->templateToString("components/list/default", [
+                ...$args,
+                "templates" => [
+                    "entry_buttons" => "dashboard",
+                    "buttons" => "addable"
+                ]
+            ])
+        );
 
     }
 
@@ -25,16 +31,17 @@ class DashboardController extends DashboardViewController {
         $otherLists = $this->contributionManager->getUserContributions($this->sessionManager->getCurrentUser());
 
         $this->renderView("page", [
-            "panel" => "panels/dashboard_panel",
+            "panel" => "dashboard",
             "name" => "Dashboard",
             "appendScripts" => [
-                ["src" => "public/scripts/dashboard", "defer" => true]
+                ["src" => "addable_list", "defer" => true],
+                ["src" => "dashboard", "defer" => true]
             ],
             "passDataToFront" => [
-                "csrfToken" => "'" . Utils::generateCSRFToken($this->sessionManager->getSessionUUID()) . "'"
+                "csrfToken" => "'" . Utils::generateCSRFToken($this->sessionManager->getSessionID()) . "'"
             ],
-            "myLists" => array_map(fn($list) => ["id" => $list->getId(), "name" => $list->getName(), "access_code" => $list->getAccessCode()], $myLists ?? []),
-            "otherLists" => array_map(fn($list) => ["id" => $list->getId(), "name" => $list->getName()], $otherLists ?? [])
+            "myLists" => array_map(fn($list) => ["data" => ["id" => $list->getId()], "contents" => [$list->getName(), str_pad($list->getAccessCode(), LIST_CODE_LENGTH, "0", STR_PAD_LEFT)]], $myLists ?? []),
+            "otherLists" => array_map(fn($list) => ["data" => ["id" => $list->getId()], "contents" => [$list->getName()]], $otherLists ?? [])
         ]);
 
     }

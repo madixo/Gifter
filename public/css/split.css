@@ -12,7 +12,7 @@
 }
 #split .side-panel .icons {
   margin: auto;
-  color: #ffffff10;
+  color: rgba(255, 255, 255, 0.062745098);
   position: absolute;
   width: 720px;
   height: 1024px;
@@ -52,6 +52,7 @@
 #split .main-panel {
   width: 100%;
   position: relative;
+  padding: 2rem;
 }
 #split .main-panel .back {
   position: absolute;

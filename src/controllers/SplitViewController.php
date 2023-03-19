@@ -8,13 +8,15 @@ abstract class SplitViewController extends AppController {
 
         parent::__construct();
 
-        $this->addShortcode("messages", function($args) {
+        $this->addShortcode('back', fn(array $args) =>
+            $this->templateToString('components/back', $args)
+        );
 
-            return $this->templateToString("components/messages", $args);
+        $this->addShortcode('messages', fn(array $args) =>
+            $this->templateToString('components/messages', $args)
+        );
 
-        });
-
-        $this->addViewFromTemplate("split", "page", ["page" => "pages/split", "appendStyles" => ["public/css/split"]]);
+        $this->addViewFromTemplate('split', 'page', ['page' => 'split', 'appendStyles' => ['split']]);
 
     }
 

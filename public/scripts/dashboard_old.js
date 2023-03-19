@@ -129,7 +129,7 @@ const appendNewItem = (list, id, name, accessCode, editable = false) => {
     if(editable) {
 
         const editItem = document.createElement('a');
-        editItem.href = `editList?id=${id}`;
+        editItem.href = `edit-list?id=${id}`;
         editItem.classList.add('list-item-edit')
 
         const editItemIcon = document.createElement('i');

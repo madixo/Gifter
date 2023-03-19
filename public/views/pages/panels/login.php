@@ -8,7 +8,7 @@
     <form class="modal-form flex flex--column" action="login" method="POST">
         <div class="inputs flex flex--column">
             [email name=email placeholder=Email email=$email]
-            [password name=password placeholder=Hasło]
+            [password name=password placeholder='Hasło']
             <a href="forgot-password">Zapomniałeś hasło?</a>
         </div>
         <input class="barrel" type="submit" value="Zaloguj">
