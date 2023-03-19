@@ -6,7 +6,7 @@ class GiftList {
 
     public function __construct(
         private ?int $id,
-        private ?User $owner,
+        private ?User $user_id,
         private ?string $name,
         private ?string $accessCode) {}
 
@@ -24,13 +24,13 @@ class GiftList {
 
     public function getOwner(): ?User {
 
-        return $this->owner;
+        return $this->user_id;
 
     }
 
-    public function setOwner(?User $owner): void {
+    public function setOwner(?User $user_id): void {
 
-        $this->owner = $owner;
+        $this->user_id = $user_id;
 
     }
 

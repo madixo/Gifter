@@ -4,19 +4,19 @@ require_once "GiftList.php";
 
 class GiftListResult {
 
-    private int $id;
-    private string $name;
+    private int $list_id;
     private ?int $owner_id = null;
     private ?string $owner_email = null;
     private ?string $owner_password = null;
     private ?int $owner_role_id = null;
     private ?string $owner_role_name = null;
+    private string $name;
     private string $access_code;
 
     public function toGiftList() {
 
         return new GiftList(
-                $this->id,
+                $this->list_id,
                 $this->owner_id ?
                 new User(
                     $this->owner_id,

@@ -4,7 +4,7 @@ require_once "User.php";
 
 class UserResult {
 
-    private int $id;
+    private int $user_id;
     private string $email;
     private ?string $password = null;
     private ?int $role_id = null;
@@ -13,7 +13,7 @@ class UserResult {
     public function toUser() {
 
         return new User(
-                $this->id,
+                $this->user_id,
                 $this->email,
                 $this->password,
                 $this->role_id ?

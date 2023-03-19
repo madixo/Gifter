@@ -5,7 +5,7 @@ require_once "GiftList.php";
 
 class GiftResult {
 
-        private int $id;
+        private int $gift_id;
         private ?int $list_id = null;
         private ?int $owner_id = null;
         private ?string $owner_email = null;
@@ -27,7 +27,7 @@ class GiftResult {
     public function toGift(): Gift {
 
         return new Gift(
-                $this->id,
+                $this->gift_id,
                 $this->list_id ?
                 new GiftList(
                     $this->list_id,

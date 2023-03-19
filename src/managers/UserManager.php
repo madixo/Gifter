@@ -1,8 +1,8 @@
 <?
 
-require_once "Manager.php";
-require_once __DIR__ . "/../Utils.php";
-require_once __DIR__ . "/../models/UserResult.php";
+require_once 'Manager.php';
+require_once __DIR__ . '/../Utils.php';
+require_once __DIR__ . '/../models/UserResult.php';
 
 class UserManager extends Manager {
 
@@ -11,63 +11,76 @@ class UserManager extends Manager {
 
     public function getUser(User $user): ?User {
 
-        $query = "
-                SELECT users.id, users.email, users.password, users.role_id, roles.name role_name
-                FROM users JOIN roles ON users.role_id = roles.id
-                WHERE
-            ";
+        $query = 'SELECT * FROM get_users WHERE';
 
-        if($user->getId() !== null) {
+        try {
 
-            if(!isset($this->statements["getUserById"])) {
+            if($user->getId() !== null) {
 
-                $this->statements["getUserById"] = $this->database->getConnection()->prepare("$query users.id = :data");
-                $this->statements["getUserById"]->setFetchMode(PDO::FETCH_CLASS, 'UserResult');
+                /** @var PDOStatement */
+                $stmt = &$this->statements['getUserById'];
 
-            }
+                if(!isset($stmt)) {
 
-            $stmt = $this->statements["getUserById"];
-            $data = $user->getId();
+                    $stmt = $this->database->getConnection()->prepare("$query user_id = :data");
+                    $stmt->setFetchMode(PDO::FETCH_CLASS, 'UserResult');
 
-        }else if($user->getEmail() !== null) {
+                }
 
-            if(!isset($this->statements["getUserByEmail"])) {
+                $data = $user->getId();
 
-                $this->statements["getUserByEmail"] = $this->database->getConnection()->prepare("$query users.email = :data");
-                $this->statements["getUserByEmail"]->setFetchMode(PDO::FETCH_CLASS, 'UserResult');
+            }else if($user->getEmail() !== null) {
 
-            }
+                /** @var PDOStatement */
+                $stmt = &$this->statements['getUserByEmail'];
 
-            $stmt = $this->statements["getUserByEmail"];
-            $data = $user->getEmail();
+                if(!isset($stmt)) {
 
-        }else return null;
+                    $stmt = $this->database->getConnection()->prepare("$query email = :data");
+                    $stmt->setFetchMode(PDO::FETCH_CLASS, 'UserResult');
 
-        if(!$stmt->execute(["data" => $data])) return null;
+                }
 
-        if(!$userResult = $stmt->fetch()) return null;
+                $data = $user->getEmail();
 
-        return $userResult->toUser();
+            }else return null;
+
+            $stmt->execute(['data' => $data]);
+
+            if(!$userResult = $stmt->fetch()) return null;
+
+            return $userResult->toUser();
+
+        }catch(PDOException $e) {
+
+            return null;
+
+        }
 
     }
 
     public function insertUser(User $user): array {
 
-        // if($user->getEmail() === null || $user->getPassword() === null || $user->getRole() === null || $user->getRole()->getId() === null) return ["status" => 0, "message" => "Błąd krytyczny!"];
+        // if($user->getEmail() === null || $user->getPassword() === null || $user->getRole() === null || $user->getRole()->getId() === null) return ['status' => 0, 'message' => 'Błąd krytyczny!'];
 
-        $this->statements["insertUser"] = $this->statements["insertUser"] ??
-            $this->database->getConnection()->prepare("INSERT INTO users (email, password, role_id) VALUES (:email, :password, :role_id)");
+        /** @var PDOStatement */
+        $stmt = &$this->statements['insertUser'];
 
         try {
 
-            return $this->statements["insertUser"]
-                ->execute(["email" => $user->getEmail(), "password" => password_hash($user->getPassword(), PASSWORD_BCRYPT), "role_id" => $user->getRole()->getId()]) ?
-                    ["status" => true, "id" => $this->database->getConnection()->lastInsertId()] :
-                    ["status" => false, "message" => "Wystąpił błąd podczas rejestracji."];
+            $stmt = $stmt ??
+                $this->database->getConnection()->prepare('INSERT INTO users (email, password) VALUES (:email, :password)');
+
+            $stmt->execute(['email' => $user->getEmail(), 'password' => password_hash($user->getPassword(), PASSWORD_BCRYPT)]);
+
+            return ['status' => true, 'id' => $this->database->getConnection()->lastInsertId()];
 
         }catch(PDOException $e) {
 
-            return ["status" => false, "message" => "Użytkownik o podanym emailu istnieje!"];
+            if($e->getCode() == 23505)
+                return ['status' => false, 'redirect' => '/login', 'message' => 'Użytkownik o podanym emailu istnieje!'];
+
+            return ['status' => false, 'message' => 'Wystąpił błąd podczas rejestracji.'];
 
         }
 
@@ -75,66 +88,96 @@ class UserManager extends Manager {
 
     public function updatePassword(string $uuid, User $user): array {
 
-        // if($user->getPassword() === null) return ["status" => 0, "message" => "Błąd krytyczny!"];
+        // if($user->getPassword() === null) return ['status' => 0, 'message' => 'Błąd krytyczny!'];
 
-        $this->statements["getPasswordReset"] = $this->statements["getPasswordReset"] ??
-            $this->database->getConnection()->prepare("SELECT users.id FROM users JOIN password_reset ON users.id = password_reset.user_id WHERE password_reset.uuid = :uuid AND timestamp + interval '30 minutes' >= current_timestamp");
+        /** @var PDOStatement */
+        $deleteStmt = &$this->statements['deletePasswordReset'];
 
-        $this->statements["deletePasswordReset"] = $this->statements["deletePasswordReset"] ??
-            $this->database->getConnection()->prepare("DELETE FROM password_reset WHERE user_id = :id");
-
-        $this->statements["updatePassword"] = $this->statements["updatePassword"] ??
-            $this->database->getConnection()->prepare("UPDATE users SET password = :password WHERE id = :id");
-
-        $this->database->getConnection()->beginTransaction();
+        /** @var PDOStatement */
+        $updateStmt = &$this->statements['updatePassword'];
 
         try {
 
-            $this->statements["getPasswordReset"]->execute(["uuid" => $uuid]);
+            $deleteStmt = $deleteStmt ??
+                $this->database->getConnection()->prepare('DELETE FROM password_resets WHERE user_id = :id');
 
-            if(!$result = $this->statements["getPasswordReset"]->fetch()) {
+            $updateStmt = $updateStmt ??
+                $this->database->getConnection()->prepare('UPDATE users SET password = :password WHERE user_id = :id');
+
+            $this->database->getConnection()->beginTransaction();
+
+            if(($user_id = $this->requestedPasswordReset($uuid)) == null) {
 
                 $this->database->getConnection()->rollBack();
 
-                return ["status" => 0, "message" => "Nieprawidłowy link resetu hasła lub link wygasł."];
+                return ['status' => false, 'message' => 'Nieprawidłowy link resetu hasła lub link wygasł.'];
 
             }
 
-            $this->statements["deletePasswordReset"]->execute(["id" => $result["id"]]);
+            $deleteStmt->execute(['id' => $user_id]);
 
-            $this->statements["updatePassword"]->execute(["password" => password_hash($user->getPassword(), PASSWORD_BCRYPT), "id" => $result["id"]]);
+            $updateStmt->execute(['password' => password_hash($user->getPassword(), PASSWORD_BCRYPT), 'id' => $user_id]);
 
             $this->database->getConnection()->commit();
 
-            return ["status" => 1];
+            return ['status' => true];
 
         }catch(PDOException $e) {
 
             $this->database->getConnection()->rollBack();
-            print_r($e);
 
-            return ["status" => 0, "message" => "Wystąpił błąd podczas zmiany hasła."];
+            return ['status' => 0, 'message' => 'Wystąpił błąd podczas zmiany hasła.'];
 
         }
 
     }
 
-    public function requestPasswordReset(User $user): bool {
+    public function requestedPasswordReset(string $uuid): ?int {
+
+        /** @var PDOStatement */
+        $stmt = &$this->statements['getPasswordReset'];
+
+        try {
+
+            $stmt = $stmt ??
+                $this->database->getConnection()->prepare('select password_reset_request_exists(:password_reset_id)');
+
+            $stmt->execute(['password_reset_id' => $uuid]);
+
+            if(!$retval = $stmt->fetch()) return null;
+
+            return $retval['password_reset_request_exists'];
+
+        }catch(PDOException $e) {
+
+            return null;
+
+        }
+
+    }
+
+    public function requestPasswordReset(User $user): ?string {
 
         // if($user->getEmail() === null) return true;
 
         if(!$user = $this->getUser($user)) return true;
 
-        $this->statements["upsertPasswordReset"] = $this->statements["upsertPasswordReset"] ??
-            $this->database->getConnection()->prepare("INSERT INTO password_reset (uuid, user_id) VALUES (:uuid, :id) ON CONFLICT (user_id) DO UPDATE SET uuid = :uuid");
+        $stmt = &$this->statements['upsertPasswordReset'];
 
         try {
 
-            return $this->statements["upsertPasswordReset"]->execute(["uuid" => Utils::uuidv4(), "id" => $user->getId()]);
+            $stmt = $stmt ??
+                $this->database->getConnection()->prepare('select request_password_reset(:user_id)');
+
+            $stmt->execute(['user_id' => $user->getId()]);
+
+            if(!$retval = $stmt->fetch()) return null;
+
+            return $retval['request_password_reset'];
 
         }catch(PDOException $e) {
 
-            return false;
+            return null;
 
         }
 

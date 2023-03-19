@@ -6,11 +6,10 @@ class SessionManager extends Manager {
 
     private const COOKIE_NAME = "xd4u";
     private const TIME = 60 * 60 * 24 * 30;
-    private PDOStatement $createSessionStatement;
-    private PDOStatement $destroySessionStatement;
-    private PDOStatement $checkSessionStatement;
+    /** @var PDOStatement[] */
+    private array $statements;
     private ?User $currentUser = null;
-    private ?string $sessionUUID = null;
+    private ?string $sessionID = null;
 
     public function __construct(private UserManager $userManager) {
 
@@ -22,14 +21,17 @@ class SessionManager extends Manager {
 
         if(isset($_COOKIE[self::COOKIE_NAME])) {
 
-            $this->checkSessionStatement = $this->checkSessionStatement ??
-                $this->database->getConnection()->prepare('SELECT user_id FROM sessions WHERE uuid = :uuid');
+            /** @var PDOStatement */
+            $stmt = &$this->statements['checkSession'];
 
             try {
 
-                $this->checkSessionStatement->execute(["uuid" => $_COOKIE[self::COOKIE_NAME]]);
+                $stmt = $stmt ??
+                    $this->database->getConnection()->prepare('SELECT user_id FROM sessions WHERE session_id = :session_id');
 
-                if(!$data = $this->checkSessionStatement->fetch()) {
+                $stmt->execute(["session_id" => $_COOKIE[self::COOKIE_NAME]]);
+
+                if(!$data = $stmt->fetch()) {
 
                     setcookie(self::COOKIE_NAME, 0, time() - 1);
                     return;
@@ -37,11 +39,11 @@ class SessionManager extends Manager {
                 }
 
                 $this->currentUser = $this->userManager->getUser(new User($data["user_id"], null, null, null));
-                $this->sessionUUID = $_COOKIE[self::COOKIE_NAME];
+                $this->sessionID = $_COOKIE[self::COOKIE_NAME];
 
             }catch(PDOException $e) {
 
-                print_r($e);
+                die($e);
 
             }
 
@@ -51,19 +53,19 @@ class SessionManager extends Manager {
 
     public function createSession(User $user): bool {
 
-        if($user->getId() === null)
-            throw new Exception("Błąd przy tworzeniu sesji.", 1);
-
-        $uuid = Utils::uuidv4();
-
-        $this->createSessionStatement = $this->createSessionStatement ??
-            $this->database->getConnection()->prepare('INSERT INTO sessions (user_id, uuid) VALUES (:user_id, :uuid)');
+        /** @var PDOStatement */
+        $stmt = &$this->statements['createSession'];
 
         try {
 
-            $this->createSessionStatement->execute(["user_id" => $user->getId(), "uuid" => $uuid]);
+            $stmt = $stmt ??
+                $this->database->getConnection()->prepare('INSERT INTO sessions (user_id) VALUES (:user_id) returning session_id');
 
-            setcookie(self::COOKIE_NAME, $uuid, time() + self::TIME);
+            $stmt->execute(["user_id" => $user->getId()]);
+
+            if(!$sessionID = $stmt->fetch()) return false;
+
+            setcookie(self::COOKIE_NAME, $sessionID['session_id'], time() + self::TIME);
 
             return true;
 
@@ -75,14 +77,17 @@ class SessionManager extends Manager {
 
     }
 
-    public function destroySession(string $uuid): bool {
+    public function destroySession(string $sessionID): bool {
 
-        $this->destroySessionStatement = $this->destroySessionStatement ??
-            $this->database->getConnection()->prepare('DELETE FROM sessions WHERE uuid = :uuid');
+        /** @var PDOStatement */
+        $stmt = &$this->statements['destroySession'];
 
         try {
 
-            $this->destroySessionStatement->execute(["uuid" => $uuid]);
+            $stmt = $stmt ??
+                $this->database->getConnection()->prepare('DELETE FROM sessions WHERE session_id = :session_id');
+
+            $stmt->execute(["session_id" => $sessionID]);
 
             setcookie(self::COOKIE_NAME, 0, time() - 1);
 
@@ -100,7 +105,7 @@ class SessionManager extends Manager {
 
     public function getCurrentUser(): ?User { return $this->currentUser; }
 
-    public function getSessionUUID(): ?string { return $this->sessionUUID; }
+    public function getSessionID(): ?string { return $this->sessionID; }
 
     public function isAuthenticated(): bool { return isset($this->currentUser); }
 
