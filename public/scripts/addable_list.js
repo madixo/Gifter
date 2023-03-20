@@ -1,239 +1,296 @@
 'use strict';
 
-const defaultHeaders = {
-    'Content-Type': 'application/json'
-};
+class AddableList {
 
-const defaultBody = {
-    csrfToken: csrfToken
-};
+    /**
+     * @param {HTMLDivElement} list
+     * @param {{callbacks: {
+     *              addItem(value: string): Promise<{id: number, name: string, access_code: ?number}>,
+     *              removeItem(id: number): Promise<void>,
+     *              removeItems(ids: number): Promise<void>
+     *          }
+     *         }} init
+     */
+    constructor(list, init) {
 
-/**
- *
- * @param {HTMLDivElement} list
- */
-const selectItem = list => {
+        console.log(init);
 
-    const checkbox = list.querySelector('.list-select');
-    const deleteButton = list.querySelector('.list-delete');
-    const selectedItems = list.querySelectorAll('.list-item-select:checked');
+        this.options = init;
 
-    if(selectedItems.length) {
+        this.list = list;
+        this.checkbox = list.querySelector('.list-select');
+        this.deleteButton = list.querySelector('.list-delete');
+        this.addButton = list.querySelector('.list-add');
+        this.contents = list.querySelector('.list-contents');
+        this.form = list.querySelector('form');
+        this.formInput = list.querySelector('input[type=text]');
+        this.endpoint = list.dataset['endpoint'];
 
-        deleteButton.disabled = false;
+        this.checkbox.addEventListener('change', e => {
 
-        if(selectedItems.length === list.querySelectorAll('.list-item').length) {
+            const listItemsCheckboxes = this.list.querySelectorAll('.list-item input[type=checkbox]');
 
-            checkbox.indeterminate = false;
-            checkbox.checked = true;
+            e.target.indeterminate = false;
 
-        }else {
+            if(e.target.checked) {
 
-            checkbox.indeterminate = true;
-            checkbox.checked = true;
+                listItemsCheckboxes.forEach(checkbox => checkbox.checked = true);
+                this.deleteButton.disabled = false;
 
-        }
+            }else {
 
-    }else {
+                listItemsCheckboxes.forEach(checkbox => checkbox.checked = false);
+                this.deleteButton.disabled = true;
 
-        deleteButton.disabled = true;
-        checkbox.indeterminate = false;
-        checkbox.checked = false;
+            }
+
+        });
+
+        this.list.querySelectorAll('.list-item').forEach(item => {
+
+            item.querySelector('.list-item-select').addEventListener('change', () => this.selectItem(item));
+
+            item.querySelector('.list-item-delete').addEventListener('click', () => this.removeItem(item));
+
+        });
+
+        this.deleteButton.addEventListener('click', () => this.removeItems());
+
+        this.addButton.addEventListener('click', () => {
+
+            this.addButton.classList.add('hidden');
+            this.form.classList.remove('hidden');
+            this.formInput.focus();
+
+        });
+
+        this.form.addEventListener('submit', e => {
+
+            e.preventDefault();
+
+            this.addItem();
+
+        });
+
+        this.form.addEventListener('keydown', e => e.key === 'Escape' ? this.hideForm() : undefined);
+
+        document.addEventListener('click', e => ![...Array.from(this.form.children), this.addButton].includes(e.target) && !this.form.classList.contains('hidden') ? this.hideForm() : undefined);
 
     }
 
-};
+    addItem() {
 
-/**
- *
- * @param {HTMLDivElement} list
- * @param {HTMLDivElement} item
- * @param {string} endpoint
- */
-const deleteList = (list, item, endpoint) => {
+        this.options.callbacks.addItem(this.formInput.value)
+            .then(data => {
 
-    const id = item.dataset['id'];
-    const deleteButton = list.querySelector('.list-delete');
-    const checkbox = list.querySelector('.list-select');
+                this.contents.appendChild(this.generateItem(data));
 
-    fetch(endpoint, {
+                this.form.classList.add('hidden');
+                this.addButton.classList.remove('hidden');
+                if(this.checkbox.disabled) this.checkbox.disabled = false;
 
-        method: 'DELETE',
-        headers: defaultHeaders,
-        body: JSON.stringify({
-            ...defaultBody,
-            id: id
-        })
+                this.form.reset();
 
-    })
-        .then(response => response.json())
-        .catch(err => console.log(err))
-        .then(data => {
+            }, err => {
 
-            if(data['status']) {
+                displayNotification(err, 'error');
 
-                if(list.querySelectorAll('.list-item-select:checked').length) {
+            });
 
-                    checkbox.indeterminate = false;
-                    checkbox.checked = false;
-                    deleteButton.disabled = true;
+    }
+
+    /**
+     * @param {HTMLDivElement} item
+     */
+    removeItem(item) {
+
+        this.options.callbacks.removeItem(item.dataset['id'])
+            .then(() => {
+
+                if(this.list.querySelectorAll('.list-item-select:checked').length) {
+
+                    this.checkbox.indeterminate = false;
+                    this.checkbox.checked = false;
+                    this.deleteButton.disabled = true;
 
                 }
 
                 item.remove();
 
-                if(!list.querySelectorAll('.list-item').length) checkbox.disabled = true;
+                if(!this.list.querySelectorAll('.list-item').length) this.checkbox.disabled = true;
 
-            }else {
+            }, err => {
 
-                displayNotification(data['message'], 'error');
+                displayNotification(err, 'error');
 
-            }
+            });
 
-        });
+    }
 
-};
+    removeItems() {
 
-const deleteLists = (list, endpoint) => {
+        const selectedItems = Array.from(this.list.querySelectorAll('.list-item')).filter(item => item.querySelector('.list-item-select:checked'));
 
-    const checkbox = list.querySelector('.list-select');
-    const deleteButton = list.querySelector('.list-delete');
-    const selectedItems = Array.from(list.querySelectorAll('.list-item')).filter(item => item.querySelector('.list-item-select:checked'));
+        if(!selectedItems.length) return;
 
-    if(!selectedItems.length) return;
+        this.options.callbacks.removeItems(selectedItems.map(item => item.dataset['id']))
+            .then(() => {
 
-    fetch(endpoint, {
+                if(this.list.querySelectorAll('.list-item-select:checked').length) {
 
-        method: 'DELETE',
-        headers: defaultHeaders,
-        body: JSON.stringify({
-            ...defaultBody,
-            ids: selectedItems.map(item => item.dataset['id'])
-        })
-
-    })
-        .then(response => response.json())
-        .catch(err => console.log(err))
-        .then(data => {
-
-            if(data['status']) {
-
-                if(list.querySelectorAll('.list-item-select:checked').length) {
-
-                    checkbox.indeterminate = false;
-                    checkbox.checked = false;
-                    deleteButton.disabled = true;
+                    this.checkbox.indeterminate = false;
+                    this.checkbox.checked = false;
+                    this.deleteButton.disabled = true;
 
                 }
 
                 selectedItems.forEach(item => item.remove());
 
-                if(!list.querySelectorAll('.list-item').length) checkbox.disabled = true;
+                if(!this.list.querySelectorAll('.list-item').length) this.checkbox.disabled = true;
 
-            }else {
+            }, err => {
 
-                displayNotification(data['message'], 'error');
-
-            }
-
-        });
-
-};
-
-document.querySelectorAll('.list[data-addable]').forEach(list => {
-
-    const checkbox = list.querySelector('.list-select');
-    const deleteButton = list.querySelector('.list-delete');
-    const addButton = list.querySelector('.list-add');
-    const form = list.querySelector('form');
-    const formInput = list.querySelector('input[type=text]');
-    const endpoint = list.dataset['endpoint'];
-
-    checkbox.addEventListener('change', e => {
-
-        const listItemsCheckboxes = list.querySelectorAll('.list-item input[type=checkbox]');
-
-        e.target.indeterminate = false;
-
-        if(e.target.checked) {
-
-            listItemsCheckboxes.forEach(checkbox => checkbox.checked = true);
-            deleteButton.disabled = false;
-
-        }else {
-
-            listItemsCheckboxes.forEach(checkbox => checkbox.checked = false);
-            deleteButton.disabled = true;
-
-        }
-
-    });
-
-    list.querySelectorAll('.list-item').forEach(item => {
-
-        item.querySelector('.list-item-select').addEventListener('change', () => selectItem(list, item));
-
-        item.querySelector('.list-item-delete').addEventListener('click', () => deleteList(list, item, endpoint));
-
-    });
-
-    deleteButton.addEventListener('click', () => deleteLists(list, endpoint))
-
-    addButton.addEventListener('click', () => {
-
-        addButton.classList.add('hidden');
-        form.classList.remove('hidden');
-        formInput.focus();
-
-    });
-
-    const hideform = () => {
-
-        addButton.classList.remove('hidden');
-        form.classList.add('hidden');
-
-    };
-
-    form.addEventListener('submit', e => {
-
-        e.preventDefault();
-
-        fetch(endpoint, {
-
-            method: 'PUT',
-            headers: defaultHeaders,
-            body: JSON.stringify({
-                ...defaultBody,
-                data: formInput.value
-            })
-
-        })
-            .then(response => response.json())
-            .catch(err => {console.log(err)})
-            .then(data => {
-
-                if(data['status']) {
-
-                    appendNewItem(list, data['list_info']);
-
-                    form.classList.add('hidden');
-                    addButton.classList.remove('hidden');
-                    if(checkbox.disabled) checkbox.disabled = false;
-
-                }else {
-
-                    displayNotification(data['message'], 'error');
-
-                }
-
-                form.reset();
+                displayNotification(err, 'error');
 
             });
 
-    });
+    }
 
-    form.addEventListener('keydown', e => e.key === "Escape" ? hideform() : undefined);
+    /**
+     * @param {HTMLDivElement}
+     */
+    selectItem(item) {
 
-    document.addEventListener('click', e => ![...Array.from(form.children), addButton].includes(e.target) && !form.classList.contains('hidden') ? hideform() : undefined);
+        const selectedItems = this.list.querySelectorAll('.list-item-select:checked')
 
-});
+        if(selectedItems.length) {
+
+            this.deleteButton.disabled = false;
+
+            if(selectedItems.length === this.list.querySelectorAll('.list-item').length) {
+
+                this.checkbox.indeterminate = false;
+                this.checkbox.checked = true;
+
+            }else {
+
+                this.checkbox.indeterminate = true;
+                this.checkbox.checked = true;
+
+            }
+
+        }else {
+
+            this.deleteButton.disabled = true;
+            this.checkbox.indeterminate = false;
+            this.checkbox.checked = false;
+
+        }
+
+    }
+
+    hideForm() {
+
+        this.addButton.classList.remove('hidden');
+        this.form.classList.add('hidden');
+
+    }
+
+    /**
+     * @param {{id: string,
+     *          name: string,
+     *          access_code: ?string}} props
+     */
+    generateItem(props) {
+
+        const listItemDiv = document.createElement('div');
+        listItemDiv.classList.add('list-item');
+        listItemDiv.dataset['id'] = props.id;
+
+        if(this.list.dataset['selectable'] !== undefined) {
+
+            const itemCheckbox = document.createElement('input');
+            itemCheckbox.type = 'checkbox';
+            itemCheckbox.classList.add('checkbox', 'list-item-select');
+
+            itemCheckbox.addEventListener('change', () => this.selectItem(listItemDiv));
+
+            listItemDiv.appendChild(itemCheckbox);
+
+        }
+
+        const itemContentsDiv = document.createElement('div');
+        itemContentsDiv.classList.add('list-item-contents');
+
+        const itemNameDiv = document.createElement('div');
+        itemNameDiv.classList.add('list-item-text');
+        itemNameDiv.textContent = props.name;
+
+        itemContentsDiv.appendChild(itemNameDiv);
+
+        if(props.access_code) {
+
+            const itemCodeDiv = document.createElement('div');
+            itemCodeDiv.classList.add('list-item-text');
+            itemCodeDiv.textContent = props.access_code;
+
+            itemContentsDiv.appendChild(itemCodeDiv);
+
+        }
+
+        const itemControlsDiv = document.createElement('div');
+        itemControlsDiv.classList.add('list-item-controls');
+
+        if(this.list.dataset['openable'] !== undefined) {
+
+            const openItem = document.createElement('a');
+            openItem.href = `list?id=${props.id}`;
+            openItem.classList.add('list-item-open');
+
+            const openItemIcon = document.createElement('i');
+            openItemIcon.classList.add('fa-solid', 'fa-link');
+
+            openItem.append(openItemIcon, document.createTextNode('Otwórz'));
+
+            itemControlsDiv.appendChild(openItem);
+
+        }
+
+        if(this.list.dataset['editable'] !== undefined) {
+
+            const editItem = document.createElement('a');
+            editItem.href = `edit-list?id=${props.id}`;
+            editItem.classList.add('list-item-edit')
+
+            const editItemIcon = document.createElement('i');
+            editItemIcon.classList.add('fa-regular', 'fa-pen-to-square');
+
+            editItem.append(editItemIcon, document.createTextNode('Edytuj'));
+
+            itemControlsDiv.appendChild(editItem);
+
+        }
+
+        if(this.list.dataset['removable'] !== undefined) {
+
+            const removeItemButton = document.createElement('button');
+            removeItemButton.classList.add('list-item-remove');
+
+            removeItemButton.addEventListener('click', () => this.removeItem(listItemDiv));
+
+            const removeItemIcon = document.createElement('i');
+            removeItemIcon.classList.add('fa-regular', 'fa-trash-can');
+
+            removeItemButton.append(removeItemIcon, document.createTextNode('Usuń'));
+
+            itemControlsDiv.appendChild(removeItemButton);
+
+        }
+
+        listItemDiv.append(itemContentsDiv, itemControlsDiv);
+
+        return listItemDiv;
+
+   }
+
+}

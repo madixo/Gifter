@@ -1,6 +1,6 @@
 <? defined('GIFTER_APP') or die("Don't look, I'm shy! >.<") ?>
 
-<main id="split" class="flex">
+<main id="split">
     <div class="side-panel">
         <div class="icons">
             <i class="fa-solid fa-wand-magic-sparkles"></i>

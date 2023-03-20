@@ -24,7 +24,7 @@ class GiftListManager extends Manager {
                     SELECT * FROM new_list(:owner_id, :name, ' . LIST_CODE_LENGTH . ', ' . LIST_CODE_MAX_ITER . ');
                 ');
 
-                $stmt->setFetchMode(PDO::FETCH_CLASS, 'GiftListResult');
+                $stmt->setFetchMode(PDO::FETCH_CLASS, GiftListResult::class);
 
             }
 
@@ -56,7 +56,7 @@ class GiftListManager extends Manager {
 //                INSERT INTO lists (owner_id, name) VALUES (:owner_id, :name) RETURNING id, name, access_code
 //            ');
 //
-//            $this->statements['insertList']->setFetchMode(PDO::FETCH_CLASS, 'GiftListResult');
+//            $this->statements['insertList']->setFetchMode(PDO::FETCH_CLASS, GiftListResult::class);
 //
 //        }
 //
@@ -89,7 +89,7 @@ class GiftListManager extends Manager {
         // if($list->getId() === null || $list->getOwner() === null || $list->getOwner()->getId() === null) return null;
 
         /** @var PDOStatement */
-        $stmt = &$this->statements['getListById'];
+        $stmt = &$this->statements['getListAuth'];
 
         try {
 
@@ -99,7 +99,7 @@ class GiftListManager extends Manager {
                     $this->listsStmt
                     WHERE list_id = :id AND owner_id = :owner_id
                 ");
-                $stmt->setFetchMode(PDO::FETCH_CLASS, 'GiftListResult');
+                $stmt->setFetchMode(PDO::FETCH_CLASS, GiftListResult::class);
 
             }
 
@@ -133,7 +133,7 @@ class GiftListManager extends Manager {
                     $this->listsStmt
                     WHERE list_id = :id
                 ");
-                $stmt->setFetchMode(PDO::FETCH_CLASS, 'GiftListResult');
+                $stmt->setFetchMode(PDO::FETCH_CLASS, GiftListResult::class);
 
             }
 
@@ -165,7 +165,7 @@ class GiftListManager extends Manager {
                     $this->listsStmt
                     WHERE access_code = :access_code
                 ");
-                $stmt->setFetchMode(PDO::FETCH_CLASS, 'GiftListResult');
+                $stmt->setFetchMode(PDO::FETCH_CLASS, GiftListResult::class);
 
             }
 
@@ -199,7 +199,7 @@ class GiftListManager extends Manager {
                     $this->listsStmt
                     WHERE owner_id = :owner_id
                 ");
-                $stmt->setFetchMode(PDO::FETCH_CLASS, 'GiftListResult');
+                $stmt->setFetchMode(PDO::FETCH_CLASS, GiftListResult::class);
 
             }
 
@@ -228,7 +228,7 @@ class GiftListManager extends Manager {
         try {
 
             $stmt = $stmt ??
-                $this->database->getConnection()->prepare('DELETE FROM user_id WHERE list_id = :id AND user_id = :owner_id');
+                $this->database->getConnection()->prepare('DELETE FROM lists WHERE list_id = :id AND user_id = :owner_id');
 
             $stmt->execute(['id' => $list->getId(), 'owner_id' => $list->getOwner()->getId()]);
 

@@ -6,9 +6,12 @@ class ListController extends RequestProcessor {
 
     public function get(): void {
 
-        if(!isset($this->query["id"]) &&
-        !$list = $this->contributionManager->getContribution(new Contribution($this->sessionManager->getCurrentUser(), new GiftList($this->query["id"], null, null, null))))
+        if(!isset($this->query["id"]))
             Router::route("/dashboard");
+
+        $list = $this->giftListManager->getList(new GiftList($this->query['id'], null, null, null));
+
+        if(!$list) Router::route('/dashboard');
 
         $this->renderView("page", ["panel" => "list", "name" => $list->getName()]);
 

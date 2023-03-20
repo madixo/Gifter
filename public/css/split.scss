@@ -3,6 +3,7 @@
     width: 100vw;
     justify-content: center;
     align-items: stretch;
+    display: flex;
 
     .side-panel {
         position: relative;
@@ -60,6 +61,7 @@
         width: 100%;
         position: relative;
         padding: 2rem;
+        overflow: hidden;
 
         .back {
             position: absolute;
@@ -82,7 +84,10 @@
             font-size: 1.2rem;
 
             .barrel {
-                width: 34rem;
+
+                max-width: 34rem;
+                width: 100vw;
+
             }
 
             input {
@@ -108,4 +113,71 @@
             }
         }
     }
+}
+
+
+@media only screen and (max-width: 1048px) {
+
+    #split {
+
+        height: 100vh;
+        flex-direction: column;
+
+        .side-panel {
+
+            padding: 1rem 0;
+            display: flex;
+            column-gap: 1rem;
+            justify-content: center;
+
+            .title {
+
+                position: initial;
+                transform: none;
+                top: 0;
+                left: 0;
+
+            }
+
+            .icons {
+
+                position: initial;
+                color: white;
+                width: auto;
+                height: auto;
+                transform: none;
+                left: 0;
+                top: 0;
+                margin: 0;
+
+                .fa-wand-magic-sparkles {
+
+                    display: none;
+
+                }
+
+                .fa-gift {
+
+                    position: initial;
+                    min-height: auto;
+                    width: 5rem;
+                    height: auto;
+                    transform: none;
+                    top: 0;
+                    left: 0;
+
+                }
+
+            }
+
+        }
+
+        .main-panel {
+
+            height: 100%;
+
+        }
+
+    }
+
 }

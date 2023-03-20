@@ -3,6 +3,7 @@
   width: 100vw;
   justify-content: center;
   align-items: stretch;
+  display: flex;
 }
 #split .side-panel {
   position: relative;
@@ -12,7 +13,7 @@
 }
 #split .side-panel .icons {
   margin: auto;
-  color: rgba(255, 255, 255, 0.062745098);
+  color: #ffffff10;
   position: absolute;
   width: 720px;
   height: 1024px;
@@ -53,6 +54,7 @@
   width: 100%;
   position: relative;
   padding: 2rem;
+  overflow: hidden;
 }
 #split .main-panel .back {
   position: absolute;
@@ -73,7 +75,8 @@
   row-gap: 2rem;
 }
 #split .main-panel .modal .barrel {
-  width: 34rem;
+  max-width: 34rem;
+  width: 100vw;
 }
 #split .main-panel .modal input {
   font-size: 1.2rem;
@@ -90,4 +93,48 @@
 }
 #split .main-panel .modal .additional-options {
   row-gap: 0.5rem;
+}
+
+@media only screen and (max-width: 1048px) {
+  #split {
+    height: 100vh;
+    flex-direction: column;
+  }
+  #split .side-panel {
+    padding: 1rem 0;
+    display: flex;
+    column-gap: 1rem;
+    justify-content: center;
+  }
+  #split .side-panel .title {
+    position: initial;
+    transform: none;
+    top: 0;
+    left: 0;
+  }
+  #split .side-panel .icons {
+    position: initial;
+    color: white;
+    width: auto;
+    height: auto;
+    transform: none;
+    left: 0;
+    top: 0;
+    margin: 0;
+  }
+  #split .side-panel .icons .fa-wand-magic-sparkles {
+    display: none;
+  }
+  #split .side-panel .icons .fa-gift {
+    position: initial;
+    min-height: auto;
+    width: 5rem;
+    height: auto;
+    transform: none;
+    top: 0;
+    left: 0;
+  }
+  #split .main-panel {
+    height: 100%;
+  }
 }

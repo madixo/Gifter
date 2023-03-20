@@ -84,6 +84,7 @@ body {
     background-color: #63d990;
     word-wrap: break-word;
     display: flex;
+    justify-content: space-around;
     column-gap: 1rem;
 
     .close-button {
@@ -138,7 +139,7 @@ a,
 button,
 input[type="button"],
 input[type="submit"] {
-    transition: ease 0.5s;
+    transition: ease 0.5s background-color;
 }
 
 button,

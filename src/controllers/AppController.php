@@ -125,7 +125,7 @@ abstract class AppController {
     protected function addViewFromView(string $viewName, string $oldViewName, array $variables = []): void {
 
         $this->views[$viewName]["template"] = $this->views[$oldViewName]["template"];
-        $this->views[$viewName]["variables"] = array_merge($this->views[$oldViewName]["variables"], $variables);
+        $this->views[$viewName]["variables"] = array_merge_recursive($this->views[$oldViewName]["variables"], $variables);
 
     }
 
@@ -139,7 +139,7 @@ abstract class AppController {
 
         if(!array_key_exists($view, $this->views)) die("Cannot find view: $view");
 
-        $this->renderTemplate($this->views[$view]["template"], array_merge($this->views[$view]["variables"], $additionalVariables));
+        $this->renderTemplate($this->views[$view]["template"], array_merge_recursive($this->views[$view]["variables"], $additionalVariables));
 
     }
 

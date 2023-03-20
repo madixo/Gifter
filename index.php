@@ -11,33 +11,37 @@ require_once "src/managers/SessionManager.php";
 
 Router::not_found('DefaultController');
 
-Router::get('/login', 'LoginController');
-Router::post('/login', 'LoginController');
+Router::get('/favicon.ico', FaviconController::class);
 
-Router::get('/register', 'RegisterController');
-Router::post('/register', 'RegisterController');
+Router::get('/login', LoginController::class);
+Router::post('/login', LoginController::class);
 
-Router::get('/forgot-password', 'ForgotPasswordController');
-Router::post('/forgot-password', 'ForgotPasswordController');
+Router::get('/register', RegisterController::class);
+Router::post('/register', RegisterController::class);
 
-Router::get('/reset-password', 'ResetPasswordController');
-Router::post('/reset-password', 'ResetPasswordController');
+Router::get('/forgot-password', ForgotPasswordController::class);
+Router::post('/forgot-password', ForgotPasswordController::class);
 
-Router::get('/code', 'CodeController');
-Router::post('/code', 'CodeController');
+Router::get('/reset-password', ResetPasswordController::class);
+Router::post('/reset-password', ResetPasswordController::class);
 
-Router::get('/dashboard', 'DashboardController');
+Router::get('/code', CodeController::class);
+Router::post('/code', CodeController::class);
 
-Router::get('/list', 'ListController');
-Router::put('/list', 'ListController');
-Router::delete('/list', 'ListController');
+Router::get('/dashboard', DashboardController::class);
 
-Router::get('/edit-list', 'EditListController');
-Router::update('/list', 'EditListController');
+Router::get('/list', ListController::class);
+Router::put('/list', ListController::class);
+Router::delete('/list', ListController::class);
 
-Router::put('/contribution', 'ContributionController');
-Router::delete('/contribution', 'ContributionController');
+Router::get('/edit-list', EditListController::class);
+Router::update('/list', EditListController::class);
 
-Router::get('/terms-of-use', 'TermsOfUseController');
+Router::put('/contribution', ContributionController::class);
+Router::delete('/contribution', ContributionController::class);
+
+Router::get('/terms-of-use', TermsOfUseController::class);
+
+Router::get('/logout', LogoutController::class);
 
 Router::run();

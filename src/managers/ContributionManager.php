@@ -22,7 +22,7 @@ class ContributionManager extends Manager {
         try {
 
             $stmt = $stmt ??
-                $this->database->getConnection()->prepare('INSERT INTO contributions VALUES (:user_id, (SELECT id FROM lists WHERE access_code = :access_code))');
+                $this->database->getConnection()->prepare('INSERT INTO contributions VALUES (:user_id, (SELECT list_id FROM lists WHERE access_code = :access_code))');
 
             $stmt->execute([
                 'user_id' => $contribution->getUser()->getId(),
@@ -78,9 +78,40 @@ class ContributionManager extends Manager {
 
                 $stmt = $this->database->getConnection()->prepare('
                     SELECT * FROM get_contributions
-                    WHERE owner_id = :user_id
+                    WHERE contributions.user_id = :user_id
                 ');
-                $stmt->setFetchMode(PDO::FETCH_CLASS, 'GiftListResult');
+                $stmt->setFetchMode(PDO::FETCH_CLASS, ContributionResult::class);
+
+            }
+
+            $stmt->execute(['user_id' => $user->getId()]);
+
+            if(!$contributions = $stmt->fetchAll()) return [];
+
+            /** @var ContributionResult[] $contributions */
+            return array_map(fn(/** @param ContributionResult */ $contribution) => $contribution->toContribution(), $contributions);
+
+        }catch(PDOException $e) {
+
+            return [];
+
+        }
+
+    }
+
+    public function getContributedLists(User $user): array {
+
+        // if($user->getId() === null) return null;
+
+        /** @var PDOStatement */
+        $stmt = &$this->statements['getContributedLists'];
+
+        try {
+
+            if(!isset($stmt)) {
+
+                $stmt = $this->database->getConnection()->prepare('SELECT * FROM get_contributed_lists(:user_id)');
+                $stmt->setFetchMode(PDO::FETCH_CLASS, GiftListResult::class);
 
             }
 

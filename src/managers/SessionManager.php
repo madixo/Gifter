@@ -77,7 +77,9 @@ class SessionManager extends Manager {
 
     }
 
-    public function destroySession(string $sessionID): bool {
+    public function destroySession(string $sessionID = null): bool {
+
+        $sessionID = $sessionID ?? $_COOKIE[self::COOKIE_NAME];
 
         /** @var PDOStatement */
         $stmt = &$this->statements['destroySession'];

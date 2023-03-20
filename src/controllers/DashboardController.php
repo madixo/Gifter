@@ -28,7 +28,7 @@ class DashboardController extends DashboardViewController {
             Router::route('/login');
 
         $myLists = $this->giftListManager->getUserLists($this->sessionManager->getCurrentUser());
-        $otherLists = $this->contributionManager->getUserContributions($this->sessionManager->getCurrentUser());
+        $contributedLists = $this->contributionManager->getContributedLists($this->sessionManager->getCurrentUser());
 
         $this->renderView("page", [
             "panel" => "dashboard",
@@ -40,8 +40,8 @@ class DashboardController extends DashboardViewController {
             "passDataToFront" => [
                 "csrfToken" => "'" . Utils::generateCSRFToken($this->sessionManager->getSessionID()) . "'"
             ],
-            "myLists" => array_map(fn($list) => ["data" => ["id" => $list->getId()], "contents" => [$list->getName(), str_pad($list->getAccessCode(), LIST_CODE_LENGTH, "0", STR_PAD_LEFT)]], $myLists ?? []),
-            "otherLists" => array_map(fn($list) => ["data" => ["id" => $list->getId()], "contents" => [$list->getName()]], $otherLists ?? [])
+            "myLists" => array_map(fn(/** @var GiftList */ $list) => ["data" => ["id" => $list->getId()], "contents" => [$list->getName(), str_pad($list->getAccessCode(), LIST_CODE_LENGTH, "0", STR_PAD_LEFT)]], $myLists ?? []),
+            "otherLists" => array_map(fn(/** @var GiftList */ $contributedList) => ["data" => ["id" => $contributedList->getId()], "contents" => [$contributedList->getName()]], $contributedLists ?? [])
         ]);
 
     }

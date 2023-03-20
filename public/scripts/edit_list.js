@@ -36,3 +36,17 @@ document.querySelector("#change-name form").addEventListener('submit', e => {
     });
 
 });
+
+new AddableList(document.querySelector('#list'), {
+    callbacks: {
+        addItem: () => {
+
+        },
+        removeItem: () => {
+
+        },
+        removeItems: () => {
+
+        }
+    }
+});

@@ -24,7 +24,7 @@ class GiftManager extends Manager {
                     $this->stmt
                     WHERE gifts.id = :id
                 ");
-                $stmt->setFetchMode(PDO::FETCH_CLASS, 'GiftResult');
+                $stmt->setFetchMode(PDO::FETCH_CLASS, GiftResult::class);
 
             }
 
@@ -68,7 +68,7 @@ class GiftManager extends Manager {
                     $this->stmt
                     WHERE list_id = :list_id
                 ");
-                $stmt->setFetchMode(PDO::FETCH_CLASS, 'GiftResult');
+                $stmt->setFetchMode(PDO::FETCH_CLASS, GiftResult::class);
 
             }
 
@@ -102,7 +102,7 @@ class GiftManager extends Manager {
                     $this->stmt
                     WHERE owner_id = :owner_id
                 ");
-                $stmt->setFetchMode(PDO::FETCH_CLASS, 'GiftResult');
+                $stmt->setFetchMode(PDO::FETCH_CLASS, GiftResult::class);
 
             }
 
@@ -136,7 +136,7 @@ class GiftManager extends Manager {
                     $this->stmt
                     WHERE taken_by_id = :taken_by_id
                 ");
-                $stmt->setFetchMode(PDO::FETCH_CLASS, 'GiftResult');
+                $stmt->setFetchMode(PDO::FETCH_CLASS, GiftResult::class);
 
             }
 

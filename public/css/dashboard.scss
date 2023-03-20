@@ -42,6 +42,94 @@ header {
         display: flex;
         justify-content: end;
     }
+
+    #profile {
+
+        display: flex;
+        justify-content: flex-end;
+        position: relative;
+
+        .active {
+
+            border-radius: 19px 19px 0 0 !important;
+            z-index: 2;
+
+        }
+
+        .profile {
+
+            &-content {
+
+                display: flex;
+                justify-content: space-between;
+                background-color: white;
+                color: black;
+                padding: 1rem 1.4rem;
+                border-radius: 50px;
+                cursor: pointer;
+                width: fit-content;
+                column-gap: .5rem;
+                transition: none;
+
+            }
+
+            &-modal {
+
+                background-color: white;
+                color: black;
+                border-radius: 0 0 19px 19px;
+                position: absolute;
+                width: 100%;
+                z-index: 1;
+                box-shadow: 0 0 10px -5px black;
+                top: 100%;
+                display: none;
+                overflow: hidden;
+
+                &-item {
+
+                    padding: 1rem 1.4rem;
+                    cursor: pointer;
+
+                    a {
+
+                        color: black;
+
+                    }
+
+                    &:not(:last-child) {
+
+                        border-bottom: 1px var(--grey) solid;
+
+                    }
+
+                    &:hover {
+
+                        background-color: var(--grey);
+
+                    }
+
+                }
+
+            }
+
+            &-email {
+
+            }
+
+            &-button {
+
+                display: inline-block;
+
+                .fa-chevron-down {
+
+                }
+
+            }
+
+        }
+
+    }
 }
 
 #dashboard {

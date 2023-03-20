@@ -14,7 +14,15 @@ class DashboardViewController extends AppController {
 
         });
 
-        $this->addViewFromTemplate('page', 'page', ['page' => 'dashboard', 'appendStyles' => ['dashboard'], 'appendScripts' => [['src' => 'dashboard_view', 'defer' => true]], 'user' => $this->sessionManager->getCurrentUser()]);
+        $this->addViewFromTemplate('page', 'page', [
+            'page' => 'dashboard',
+            'appendStyles' => ['dashboard'],
+            'appendScripts' => [
+                ['src' => 'dashboard_view', 'defer' => true],
+                ['src' => 'profile', 'defer' => true]
+            ],
+            'user' => $this->sessionManager->getCurrentUser()
+        ]);
 
     }
 

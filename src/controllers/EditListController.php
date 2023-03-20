@@ -46,8 +46,8 @@ class EditListController extends RequestProcessor {
             'name' => htmlspecialchars($list->getName()),
             'items' => array_map(fn(Gift $gift) => ['data' => ['id' => $gift->getId()]], $gifts),
             'appendScripts' => [
-                ['src' => 'edit_list', 'defer' => true],
-                ['src' => 'addable_list', 'defer' => true]
+                ['src' => 'addable_list', 'defer' => true],
+                ['src' => 'edit_list', 'defer' => true]
             ],
             'passDataToFront' => [
                 'csrfToken' => "'" . Utils::generateCSRFToken($this->sessionManager->getSessionID()) . "'",

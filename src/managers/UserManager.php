@@ -23,7 +23,7 @@ class UserManager extends Manager {
                 if(!isset($stmt)) {
 
                     $stmt = $this->database->getConnection()->prepare("$query user_id = :data");
-                    $stmt->setFetchMode(PDO::FETCH_CLASS, 'UserResult');
+                    $stmt->setFetchMode(PDO::FETCH_CLASS, UserResult::class);
 
                 }
 
@@ -37,7 +37,7 @@ class UserManager extends Manager {
                 if(!isset($stmt)) {
 
                     $stmt = $this->database->getConnection()->prepare("$query email = :data");
-                    $stmt->setFetchMode(PDO::FETCH_CLASS, 'UserResult');
+                    $stmt->setFetchMode(PDO::FETCH_CLASS, UserResult::class);
 
                 }
 
