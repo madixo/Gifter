@@ -13,8 +13,6 @@ class AddableList {
      */
     constructor(list, init) {
 
-        console.log(init);
-
         this.options = init;
 
         this.list = list;

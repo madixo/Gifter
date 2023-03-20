@@ -1,7 +1,5 @@
 'use strict';
 
-console.log('register');
-
 /**
  * @type {NodeListOf<HTMLInputElement>} inputs
  */

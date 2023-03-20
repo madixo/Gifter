@@ -39,13 +39,13 @@ document.querySelector("#change-name form").addEventListener('submit', e => {
 
 new AddableList(document.querySelector('#list'), {
     callbacks: {
-        addItem: () => {
+        addItem: (value) => {
 
         },
-        removeItem: () => {
+        removeItem: (id) => {
 
         },
-        removeItems: () => {
+        removeItems: (ids) => {
 
         }
     }

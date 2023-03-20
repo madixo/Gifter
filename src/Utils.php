@@ -31,10 +31,4 @@ class Utils {
 
     }
 
-    public static function generateAccessCode() {
-
-        return random_int(0, 999999);
-
-    }
-
 }

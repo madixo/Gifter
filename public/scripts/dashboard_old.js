@@ -302,6 +302,4 @@ otherList.querySelector('form').addEventListener('submit', e => {
     const input = e.target.querySelector('input[type=text]');
     const checkbox = otherList.querySelector('.list-select');
 
-    console.log('others');
-
 });

@@ -21,11 +21,11 @@ class ListController extends RequestProcessor {
 
         $this->safeChecks();
 
-        $this->assertOrDie(isset($this->json["data"]), 400);
+        $this->assertOrDie(isset($this->json["name"]), 400);
 
         die(
             json_encode(
-                ($result = $this->giftListManager->insertList(new GiftList(null, $this->sessionManager->getCurrentUser(), $this->json["data"], null))) ?
+                ($result = $this->giftListManager->insertList(new GiftList(null, $this->sessionManager->getCurrentUser(), $this->json["name"], null))) ?
                 ["status" => true, "list_info" => ["id" => $result->getId(), "name" => $result->getName(), "access_code" => $result->getAccessCode()]] :
                 ["status" => false, "message" => "error"]
             )
